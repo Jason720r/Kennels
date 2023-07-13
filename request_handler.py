@@ -1,6 +1,6 @@
 import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from views import get_all_animals, get_single_animal, get_single_location, get_all_locations, get_all_employees, get_single_employee, get_all_customers, get_single_customer, create_animal, create_location, create_employee, create_customer, delete_animal, delete_location, delete_employee, delete_customer
+from views import get_all_animals, get_single_animal, get_single_location, get_all_locations, get_all_employees, get_single_employee, get_all_customers, get_single_customer, create_animal, create_location, create_employee, create_customer, delete_animal, delete_location, delete_employee, delete_customer, update_animal, update_customer, update_employee, update_location
 
 
 # Here's a class. It inherits from another class.
@@ -143,7 +143,30 @@ class HandleRequests(BaseHTTPRequestHandler):
 
     def do_PUT(self):
         """Handles PUT requests to the server"""
-        self.do_PUT()
+        self._set_headers(204)
+        content_len = int(self.headers.get('content-length', 0))
+        post_body = self.rfile.read(content_len)
+        post_body = json.loads(post_body)
+
+    # Parse the URL
+        (resource, id) = self.parse_url(self.path)
+
+    # Delete a single animal from the list
+        if resource == "animals":
+            update_animal(id, post_body)
+            self.wfile.write("".encode())
+        if resource == "locations":
+            update_location(id, post_body)
+            self.wfile.write("".encode())
+        if resource == "customer":
+            update_customer(id, post_body)
+            self.wfile.write("".encode())
+        if resource == "employees":
+            update_employee(id, post_body)
+            self.wfile.write("".encode())
+            self.do_PUT()
+        
+    
 
     def _set_headers(self, status):
         # Notice this Docstring also includes information about the arguments passed to the function
@@ -203,5 +226,5 @@ def main():
     port = 8088
     HTTPServer((host, port), HandleRequests).serve_forever()
 
-    if __name__ == "__main__":
-        main()
+if __name__ == "__main__":
+    main()
